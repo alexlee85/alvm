@@ -1,0 +1,7 @@
+[package]
+name = "alvm"
+version = "0.1.0"
+authors = ["Alex <flashlee2@gmail.com>"]
+edition = "2018"
+
+[dependencies]
