@@ -13,7 +13,6 @@ named!(pub opcode<CompleteStr, Token>,
     )
 );
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
