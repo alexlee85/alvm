@@ -1,4 +1,4 @@
-use crate::assembler::instruction_parsers::{AssemblerInstruction, instruction_one};
+use crate::assembler::instruction_parsers::{AssemblerInstruction, instruction};
 use nom::types::CompleteStr;
 use nom::*;
 
@@ -9,7 +9,7 @@ pub struct Program {
 
 named!(pub program<CompleteStr, Program>, 
     do_parse!(
-        instructions: many1!(instruction_one) >>
+        instructions: many1!(instruction) >>
         (
             Program {
                 instructions: instructions
@@ -49,6 +49,5 @@ mod tests {
         let (_, program) = result.unwrap();
         let bytecode = program.to_bytes();
         assert_eq!(bytecode.len(), 4);
-        println!("{:?}", bytecode);
     }
 }

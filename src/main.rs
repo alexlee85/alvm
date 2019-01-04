@@ -6,6 +6,6 @@ pub mod repl;
 pub mod assembler;
 
 fn main() {
-    let mut repl = repl::REPL::new();
+    let mut repl = repl::REPL::default();
     repl.run();
 }

@@ -1,26 +1,16 @@
 use crate::instruction::*;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct VM {
     pub registers: [i32; 32],
     // program counter, track which byte is executing
     pc: usize,
-    program: Vec<u8>,
+    pub program: Vec<u8>,
     remainder: u32,
     equal_flag: bool,
 }
 
 impl VM {
-    pub fn new() -> VM {
-        VM {
-            registers: [0; 32],
-            pc: 0,
-            program: vec![],
-            remainder: 0,
-            equal_flag: false,
-        }
-    }
-
     pub fn run(&mut self) {
         let mut is_done = false;
         while !is_done {
@@ -41,7 +31,7 @@ impl VM {
             Opcode::LOAD => {
                 let register = self.next_8_bits() as usize;
                 let number = self.next_16_bits() as u16;
-                self.registers[register] = number as i32;
+                self.registers[register] = i32::from(number);
             }
             Opcode::ADD => {
                 let register1 = self.registers[self.next_8_bits() as usize];
@@ -134,25 +124,27 @@ impl VM {
             }
         }
 
-        return false;
+        false
     }
 
     fn decode_opcode(&mut self) -> Opcode {
         let opcode = Opcode::from(self.program[self.pc]);
         self.pc += 1;
-        return opcode;
+        opcode
     }
 
     fn next_8_bits(&mut self) -> u8 {
         let result = self.program[self.pc];
         self.pc += 1;
-        return result;
+        result
     }
 
     fn next_16_bits(&mut self) -> u16 {
-        let result = ((self.program[self.pc] as u16) << 8) | self.program[self.pc + 1] as u16;
+        let first_8_bits = u16::from(self.program[self.pc]);
+        let next_8_bits =  u16::from(self.program[self.pc + 1]);
+        let result = (first_8_bits << 8) | next_8_bits;
         self.pc += 2;
-        return result;
+        result
     }
 
     pub fn add_byte(&mut self, b: u8) {
@@ -166,13 +158,13 @@ mod test {
 
     #[test]
     fn test_create_vm() {
-        let test_vm = VM::new();
+        let test_vm = VM::default();
         assert_eq!(test_vm.registers[0], 0);
     }
 
     #[test]
     fn test_opcode_load() {
-        let mut test_vm = VM::new();
+        let mut test_vm = VM::default();
         test_vm.program = vec![0, 0, 1, 244];
 
         test_vm.run();
@@ -181,7 +173,7 @@ mod test {
 
     #[test]
     fn test_opcode_add() {
-        let mut test_vm = VM::new();
+        let mut test_vm = VM::default();
         let load1_bytes = vec![0, 0, 0, 100];
         let load2_bytes = vec![0, 1, 0, 200];
         let add_bytes = vec![1, 0, 1, 2];
@@ -200,7 +192,7 @@ mod test {
 
     #[test]
     fn test_opcode_sub() {
-        let mut test_vm = VM::new();
+        let mut test_vm = VM::default();
         let load1_bytes = vec![0, 0, 0, 200];
         let load2_bytes = vec![0, 1, 0, 100];
         let sub_bytes = vec![2, 0, 1, 2];
@@ -219,7 +211,7 @@ mod test {
 
     #[test]
     fn test_opcode_mul() {
-        let mut test_vm = VM::new();
+        let mut test_vm = VM::default();
         test_vm.registers[0] = 10;
         test_vm.registers[1] = 20;
         let test_bytes = vec![3, 0, 1, 2];
@@ -231,7 +223,7 @@ mod test {
 
     #[test]
     fn test_opcode_div() {
-        let mut test_vm = VM::new();
+        let mut test_vm = VM::default();
         test_vm.registers[0] = 200;
         test_vm.registers[1] = 30;
         let test_bytes = vec![4, 0, 1, 2];
@@ -244,7 +236,7 @@ mod test {
 
     #[test]
     fn test_opcode_hlt() {
-        let mut test_vm = VM::new();
+        let mut test_vm = VM::default();
         let test_bytes = vec![5, 0, 0, 0];
         test_vm.program = test_bytes;
 
@@ -254,7 +246,7 @@ mod test {
 
     #[test]
     fn test_opcode_jmp() {
-        let mut test_vm = VM::new();
+        let mut test_vm = VM::default();
         test_vm.registers[0] = 1;
         test_vm.program = vec![6, 0, 0, 0];
         test_vm.run_once();
@@ -263,7 +255,7 @@ mod test {
 
     #[test]
     fn test_opcode_jmpf() {
-        let mut test_vm = VM::new();
+        let mut test_vm = VM::default();
         test_vm.registers[0] = 2;
         let test_bytes = vec![7, 0, 0, 0, 200, 0, 0, 0];
         test_vm.program = test_bytes;
@@ -274,7 +266,7 @@ mod test {
 
     #[test]
     fn test_opcode_jmpb() {
-        let mut test_vm = VM::new();
+        let mut test_vm = VM::default();
         test_vm.pc = 4;
         test_vm.registers[0] = 6;
         let test_bytes = vec![200, 0, 0, 0, 8, 0, 0, 0];
@@ -286,7 +278,7 @@ mod test {
 
     #[test]
     fn test_opcode_eq() {
-        let mut test_vm = VM::new();
+        let mut test_vm = VM::default();
         test_vm.registers[0] = 4;
         test_vm.registers[1] = 4;
         let test_bytes = vec![9, 0, 1, 0];
@@ -298,7 +290,7 @@ mod test {
 
     #[test]
     fn test_opcode_neq() {
-        let mut test_vm = VM::new();
+        let mut test_vm = VM::default();
         test_vm.registers[0] = 4;
         test_vm.registers[1] = 5;
         let test_bytes = vec![10, 0, 1, 0];
@@ -310,7 +302,7 @@ mod test {
 
     #[test]
     fn test_opcode_gte() {
-        let mut test_vm = VM::new();
+        let mut test_vm = VM::default();
         test_vm.registers[0] = 5;
         test_vm.registers[1] = 4;
         let test_bytes = vec![11, 0, 1, 0];
@@ -322,7 +314,7 @@ mod test {
 
     #[test]
     fn test_opcode_lte() {
-        let mut test_vm = VM::new();
+        let mut test_vm = VM::default();
         test_vm.registers[0] = 3;
         test_vm.registers[1] = 4;
         let test_bytes = vec![12, 0, 1, 0];
@@ -334,7 +326,7 @@ mod test {
 
     #[test]
     fn test_opcode_lt() {
-        let mut test_vm = VM::new();
+        let mut test_vm = VM::default();
         test_vm.registers[0] = 4;
         test_vm.registers[1] = 4;
         let test_bytes = vec![13, 0, 1, 0];
@@ -346,7 +338,7 @@ mod test {
 
     #[test]
     fn test_opcode_gt() {
-        let mut test_vm = VM::new();
+        let mut test_vm = VM::default();
         test_vm.registers[0] = 4;
         test_vm.registers[1] = 4;
         let test_bytes = vec![14, 0, 1, 0];
@@ -358,7 +350,7 @@ mod test {
 
     #[test]
     fn test_opcode_jmpe() {
-        let mut test_vm = VM::new();
+        let mut test_vm = VM::default();
         test_vm.registers[0] = 4;
         test_vm.equal_flag = true;
         let test_bytes = vec![15, 0, 0, 0, 200, 0, 0, 0];
@@ -370,7 +362,7 @@ mod test {
 
     #[test]
     fn test_opcode_igl() {
-        let mut test_vm = VM::new();
+        let mut test_vm = VM::default();
         let test_bytes = vec![200, 0, 0, 0];
         test_vm.program = test_bytes;
 

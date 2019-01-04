@@ -1,4 +1,4 @@
-use crate::assembler::opcode_parsers::opcode_load;
+use crate::assembler::opcode_parsers::opcode;
 use crate::assembler::operand_parsers::integer_operand;
 use crate::assembler::register_parsers::register;
 use crate::assembler::Token;
@@ -17,7 +17,23 @@ pub struct AssemblerInstruction {
 
 named!(pub instruction_one<CompleteStr, AssemblerInstruction>,
     do_parse!(
-        o: opcode_load >>
+        o: opcode >>
+        opt!(multispace) >>
+        (
+            AssemblerInstruction{
+                label: None,
+                opcode: o,
+                operand1: None,
+                operand2: None,
+                operand3: None
+            }
+        )
+    )
+);
+
+named!(pub instruction_two<CompleteStr, AssemblerInstruction>,
+    do_parse!(
+        o: opcode >>
         r: register >>
         i: integer_operand >>
         (
@@ -28,6 +44,18 @@ named!(pub instruction_one<CompleteStr, AssemblerInstruction>,
                 operand2: Some(i),
                 operand3: None
             }
+        )
+    )
+);
+
+named!(pub instruction<CompleteStr, AssemblerInstruction>,
+    do_parse!(
+        ins: alt!(
+            instruction_two |
+            instruction_one
+        ) >>
+        (
+            ins
         )
     )
 );
@@ -45,14 +73,13 @@ impl AssemblerInstruction {
             }
         };
 
-        for operand in vec![&self.operand1, &self.operand2, &self.operand3] {
-            match operand {
-                Some(t) => AssemblerInstruction::extract_operhand(t, &mut results),
-                None => {}
+        for operand in &[&self.operand1, &self.operand2, &self.operand3] {
+            if let Some(token) = operand {
+                AssemblerInstruction::extract_operhand(token, &mut results)
             }
         }
 
-        return results;
+        results
     }
 
     fn extract_operhand(t: &Token, results: &mut Vec<u8>) {
@@ -82,7 +109,25 @@ mod tests {
 
     #[test]
     fn test_parse_instruction_form_one() {
-        let result = instruction_one(CompleteStr("load $0 #100\n"));
+        let result = instruction_one(CompleteStr("hlt\n"));
+        assert_eq!(
+            result,
+            Ok((
+                CompleteStr(""),
+                AssemblerInstruction {
+                    label: None,
+                    opcode: Token::Op { code: Opcode::HLT },
+                    operand1: None,
+                    operand2: None,
+                    operand3: None
+                }
+            ))
+        );
+    }
+
+    #[test]
+    fn test_parse_instruction_form_two() {
+        let result = instruction_two(CompleteStr("load $0 #100\n"));
         assert_eq!(
             result,
             Ok((
