@@ -1,7 +1,9 @@
 use crate::vm::VM;
+use crate::assembler::program_parsers::program;
 use std;
 use std::io;
 use std::io::Write;
+use nom::types::CompleteStr;
 
 pub struct REPL {
     command_buffer: Vec<String>,
@@ -40,8 +42,22 @@ impl REPL {
                         println!("{}", command);
                     }
                 }
+                ".registers" => {
+                    println!("{:#?}", self.vm.registers)
+                }
                 _ => {
-                    println!("Invalide input");
+                    let parsed_program = program(CompleteStr(buffer));
+                    if !parsed_program.is_ok() {
+                        println!("Unable to parse input");
+                        continue;
+                    }
+
+                    let (_, result) = parsed_program.unwrap();
+                    let bytecode = result.to_bytes();
+                    for byte in bytecode {
+                        self.vm.add_byte(byte);
+                    }
+                    self.vm.run_once();
                 }
             }
         }
