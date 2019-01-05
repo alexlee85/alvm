@@ -3,7 +3,7 @@ use crate::assembler::Token;
 use nom::types::CompleteStr;
 use nom::*;
 
-named!(pub register<CompleteStr, Token>, 
+named!(pub register<CompleteStr, Token>,
     ws!(
         do_parse!(
             tag!("$") >>
@@ -18,7 +18,7 @@ named!(pub register<CompleteStr, Token>,
 );
 
 #[cfg(test)]
-mod tests{
+mod tests {
     use super::*;
 
     #[test]

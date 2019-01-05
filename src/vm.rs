@@ -141,7 +141,7 @@ impl VM {
 
     fn next_16_bits(&mut self) -> u16 {
         let first_8_bits = u16::from(self.program[self.pc]);
-        let next_8_bits =  u16::from(self.program[self.pc + 1]);
+        let next_8_bits = u16::from(self.program[self.pc + 1]);
         let result = (first_8_bits << 8) | next_8_bits;
         self.pc += 2;
         result

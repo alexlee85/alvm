@@ -1,9 +1,9 @@
 #[macro_use]
 
 pub mod vm;
+pub mod assembler;
 pub mod instruction;
 pub mod repl;
-pub mod assembler;
 
 fn main() {
     let mut repl = repl::REPL::default();

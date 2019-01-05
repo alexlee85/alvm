@@ -1,5 +1,5 @@
-use crate::vm::VM;
 use crate::assembler::program_parsers::program;
+use crate::vm::VM;
 use std;
 use std::io;
 use std::io::Write;
@@ -35,15 +35,13 @@ impl REPL {
                         println!("{}", command);
                     }
                 }
-                ".registers" => {
-                    println!("{:#?}", self.vm.registers)
-                }
+                ".registers" => println!("{:#?}", self.vm.registers),
                 _ => {
                     let program = match program(buffer.into()) {
                         Ok((_, program)) => program,
                         Err(_) => {
-                             println!("Unable to parse input");
-                        continue;
+                            println!("Unable to parse input");
+                            continue;
                         }
                     };
 

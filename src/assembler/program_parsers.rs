@@ -1,13 +1,13 @@
-use crate::assembler::instruction_parsers::{AssemblerInstruction, instruction};
+use crate::assembler::instruction_parsers::{instruction, AssemblerInstruction};
 use nom::types::CompleteStr;
 use nom::*;
 
 #[derive(Debug, PartialEq)]
 pub struct Program {
-    instructions: Vec<AssemblerInstruction>
+    instructions: Vec<AssemblerInstruction>,
 }
 
-named!(pub program<CompleteStr, Program>, 
+named!(pub program<CompleteStr, Program>,
     do_parse!(
         instructions: many1!(instruction) >>
         (

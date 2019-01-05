@@ -64,13 +64,13 @@ impl From<Opcode> for u8 {
             Opcode::LT => 13,
             Opcode::GT => 14,
             Opcode::JMPE => 15,
-            Opcode::IGL => 200
+            Opcode::IGL => 200,
         }
     }
 }
 
 impl<'a> From<CompleteStr<'a>> for Opcode {
-    fn from(v:CompleteStr<'a>) -> Self {
+    fn from(v: CompleteStr<'a>) -> Self {
         match v {
             CompleteStr("load") => Opcode::LOAD,
             CompleteStr("add") => Opcode::ADD,

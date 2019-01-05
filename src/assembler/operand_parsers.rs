@@ -15,7 +15,6 @@ named!(pub integer_operand<CompleteStr, Token>,
     )
 );
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -26,7 +25,7 @@ mod tests {
         assert_eq!(result.is_ok(), true);
         let (rest, value) = result.unwrap();
         assert_eq!(rest, CompleteStr(""));
-        assert_eq!(value, Token::IntegerOperand{value: 10});
+        assert_eq!(value, Token::IntegerOperand { value: 10 });
 
         let result = integer_operand(CompleteStr("10"));
         assert_eq!(result.is_ok(), false);
